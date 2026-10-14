@@ -13,7 +13,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-notification_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-notification_user} -d ${POSTGRES_DB:-notification_hub}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,6 +28,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  api:
+    build: .
+    container_name: notification_hub_api
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-notification_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+      - POSTGRES_DB=${POSTGRES_DB:-notification_hub}
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
   pgdata:
