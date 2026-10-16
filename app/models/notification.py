@@ -10,7 +10,7 @@ class Notification(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
     text: Mapped[str] = mapped_column(String)
     channel: Mapped[str] = mapped_column(String)     # "telegram" или "websocket"
-    status: Mapped[str] = mapped_column(String, default=True)    # pending, sent, failed
+    status: Mapped[str] = mapped_column(String, default="pending")   # pending, sent, failed
     send_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
