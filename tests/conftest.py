@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.main import app
+from main import app
 from app.database import Base, get_db
 from app.models import User
 
@@ -16,7 +16,6 @@ async def async_engine():
     engine = create_async_engine(TEST_DATABASE_URL, poolclass=NullPool)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
     yield engine
 
     async with engine.begin() as conn:
@@ -44,7 +43,6 @@ async def client(async_session):
     app.dependency_overrides.clear()
 
 
-# -------------------------
 @pytest_asyncio.fixture(scope="function")
 async def test_user_chat_id(async_session):
     user = User(telegram_chat_id="test_chat_123", timezone="UTC")
