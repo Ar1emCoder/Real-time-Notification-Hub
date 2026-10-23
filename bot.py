@@ -35,7 +35,9 @@ async def start_handler(message: Message):
 @dp.message(Command("send"))
 async def send_handler(message: Message):
     await message.answer("Начинаю отправку уведомлений...")
-    await send_pending_notifications(bot)
+
+    async with async_session_maker() as session:
+        await send_pending_notifications(bot, session)
     await message.answer("Отправка завершена!")
 
 
