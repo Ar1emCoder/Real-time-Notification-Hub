@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from dotenv import load_dotenv
 from sqlalchemy import select
+from datetime import datetime, timezone
 
 from app.database import async_session_maker
 from app.models import User
@@ -37,7 +38,8 @@ async def send_handler(message: Message):
     await message.answer("Начинаю отправку уведомлений...")
 
     async with async_session_maker() as session:
-        await send_pending_notifications(bot, session)
+        await send_pending_notifications(bot, session, datetime.now(timezone.utc))
+
     await message.answer("Отправка завершена!")
 
 
