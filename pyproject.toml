@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "TCH"]
+
+ignore = ["E501", "TC002", "TC003", "B008", "F401", "UP037"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]

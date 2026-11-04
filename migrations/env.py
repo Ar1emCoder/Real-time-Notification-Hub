@@ -1,14 +1,13 @@
 import asyncio
-import os
 from logging.config import fileConfig
+
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-from alembic import context
 
 # 1. Импортируем Base и модели!
-from app.database import Base, DATABASE_URL
-from app.models import User, Notification
+from app.database import DATABASE_URL, Base
 
 config = context.config
 

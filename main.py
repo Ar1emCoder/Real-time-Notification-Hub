@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from app.routers import events
 
 app = FastAPI(title="Real-time Notification Hub")
