@@ -33,3 +33,10 @@
 docker-compose up -d
 alembic upgrade head
 uvicorn main:app --reload
+```
+## Roadmap
+
+- [ ] Реализация базовой доставки через Telegram
+- [ ] Настройка Celery для отложенных задач
+- [ ] Интеграция WebSocket для браузерных уведомлений
+- [ ] Rate limiting через Redis
