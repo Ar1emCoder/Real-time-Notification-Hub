@@ -1,15 +1,15 @@
-import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from main import app
 from app.database import Base, get_db
 from app.models import User
+from main import app
 
 TEST_DATABASE_URL = "postgresql+asyncpg://notification_user:change_me_in_production@localhost:5432/test_db"
+
 
 @pytest_asyncio.fixture(scope="function")
 async def async_engine():
@@ -25,7 +25,9 @@ async def async_engine():
 
 @pytest_asyncio.fixture(scope="function")
 async def async_session(async_engine):
-    async_session_maker = sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
+    async_session_maker = sessionmaker(
+        async_engine, class_=AsyncSession, expire_on_commit=False
+    )
     async with async_session_maker() as session:
         yield session
 

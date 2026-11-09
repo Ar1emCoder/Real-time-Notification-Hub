@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +12,7 @@ async def send_pending_notifications(bot, session: AsyncSession, now: datetime):
     Принимает сессию как аргумент для возможности подмены в тестах."""
 
     stmt = select(Notification).where(
-        Notification.status == "pending",
-        Notification.send_at <= now
+        Notification.status == "pending", Notification.send_at <= now
     )
     result = await session.execute(stmt)
     notifications = result.scalars().all()
@@ -26,19 +26,17 @@ async def send_pending_notifications(bot, session: AsyncSession, now: datetime):
         user = user_result.scalar_one()
 
         if is_quiet(now, user.timezone, user.quiet_start, user.quiet_end):
-            notif.send_at = next_allowed_time(now, user.timezone, user.quiet_start, user.quiet_end)
+            notif.send_at = next_allowed_time(
+                now, user.timezone, user.quiet_start, user.quiet_end
+            )
             print(f"Уведомление {notif.id} отложено до {notif.send_at}")
         else:
             try:
-                await bot.send_message(
-                    chat_id=user.telegram_chat_id,
-                    text=notif.text
-                )
+                await bot.send_message(chat_id=user.telegram_chat_id, text=notif.text)
                 notif.status = "sent"
                 print(f"Уведомление {notif.id} отправлено")
             except Exception as e:
                 notif.status = "failed"
                 print(f"Ошибка отправки уведомления {notif.id}: {e}")
-
 
     await session.commit()

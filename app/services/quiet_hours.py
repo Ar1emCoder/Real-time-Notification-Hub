@@ -1,5 +1,6 @@
-from datetime import datetime, time, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
+
 
 def is_quiet(now_utc, tz, start, end) -> bool:
     # Перевод UTC в локальное время пользователя
@@ -27,4 +28,4 @@ def next_allowed_time(now_utc, tz, start, end):
     if end_dt_today <= local_now:
         end_dt_today += timedelta(days=1)
 
-    return end_dt_today.astimezone(timezone.utc)
+    return end_dt_today.astimezone(UTC)

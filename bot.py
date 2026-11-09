@@ -1,11 +1,12 @@
-import os
 import asyncio
-from aiogram import Bot, Dispatcher, F
+import os
+from datetime import UTC, datetime
+
+from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 from dotenv import load_dotenv
 from sqlalchemy import select
-from datetime import datetime, timezone
 
 from app.database import async_session_maker
 from app.models import User
@@ -13,15 +14,18 @@ from app.services.notification_sender import send_pending_notifications
 
 load_dotenv()
 
-bot = Bot(token=os.getenv("BOT_TOKEN"))
+bot = Bot(token=os.getenv("BOT_TOKEN", ""))
 dp = Dispatcher()
+
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
     chat_id = str(message.chat.id)
 
     async with async_session_maker() as session:
-        result = await session.execute(select(User).where(User.telegram_chat_id == chat_id))
+        result = await session.execute(
+            select(User).where(User.telegram_chat_id == chat_id)
+        )
         user = result.scalar_one_or_none()
 
         if not user:
@@ -38,7 +42,7 @@ async def send_handler(message: Message):
     await message.answer("Начинаю отправку уведомлений...")
 
     async with async_session_maker() as session:
-        await send_pending_notifications(bot, session, datetime.now(timezone.utc))
+        await send_pending_notifications(bot, session, datetime.now(UTC))
 
     await message.answer("Отправка завершена!")
 
