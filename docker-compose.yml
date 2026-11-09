@@ -47,5 +47,30 @@ services:
         condition: service_healthy
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
+  worker:
+    build: .
+    command: celery -A app.core.celery_app worker --loglevel=info
+    environment:
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - POSTGRES_USER=${POSTGRES_USER:-notification_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+      - POSTGRES_DB=${POSTGRES_DB:-notification_hub}
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  beat:
+    build: .
+    command: celery -A app.core.celery_app beat --loglevel=info
+    environment:
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   pgdata:
