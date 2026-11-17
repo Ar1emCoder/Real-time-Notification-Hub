@@ -1,3 +1,5 @@
+import os
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -8,7 +10,8 @@ from app.database import Base, get_db
 from app.models import User
 from main import app
 
-TEST_DATABASE_URL = "postgresql+asyncpg://notification_user:change_me_in_production@localhost:5432/test_db"
+TEST_DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+TEST_DATABASE_URL = f"postgresql+asyncpg://notification_user:change_me_in_production@{TEST_DB_HOST}:5432/test_db"
 
 
 @pytest_asyncio.fixture(scope="function")
