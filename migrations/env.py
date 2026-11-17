@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 # 1. Импортируем Base и модели!
 from app.database import DATABASE_URL, Base
+from app.models.notification import Notification
+from app.models.user import User
 
 config = context.config
 
