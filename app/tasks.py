@@ -1,5 +1,6 @@
 import asyncio
 from datetime import UTC, datetime, timezone
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -9,6 +10,12 @@ from app.database import async_session_maker
 from app.models.notification import Notification
 from app.services.notification_sender import send_pending_notifications
 from app.services.quiet_hours import is_quiet, next_allowed_time
+from retry_logic import next_retry_delay, register_failure
+
+if TYPE_CHECKING:
+    from app.core.celery_app import celery_app
+
+from app.core.celery_app import celery_app
 
 
 @celery_app.task(name="tasks.ping")
@@ -108,12 +115,12 @@ async def _process_pending_async():
 
                 # обработка исключения (2 блок) - вывод ошибки
                 except Exception as e:
-                    # меняем статус на failed
-                    event.status = "failed"
-                    # коммитим
+                    register_failure(event, e, now)
                     await session.commit()
-                    # выводим ошибку
-                    print(f"Ошибка обработки события {event.id}: {e}")
+                    print(
+                        f"Событие {event.id}: Попытка {event.attempts}, статус {event.status}, следующая отправка {event.send_at}"
+                    )
+
     # завершаем ошибку после корректного выполнения - после выполнения события
     finally:
         # ГАРАНТИРОВАННО закрываем пул соединений с БД при завершении задачи
