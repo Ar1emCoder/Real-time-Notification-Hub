@@ -40,7 +40,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     # 3. Берем URL из переменной окружения, а не из alembic.ini!
-    configuration = config.get_section(config.config_ini_section)
+    configuration = config.get_section(config.config_ini_section, {})
     configuration["sqlalchemy.url"] = DATABASE_URL
 
     connectable = async_engine_from_config(

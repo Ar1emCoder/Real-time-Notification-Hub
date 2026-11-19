@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 
 def next_retry_delay(attempts: int) -> timedelta | None:
@@ -6,3 +6,14 @@ def next_retry_delay(attempts: int) -> timedelta | None:
     if (attempts > len(list_pause)) or attempts < 1:
         return None
     return list_pause[attempts - 1]
+
+
+def register_failure(event, error: Exception, now: datetime) -> None:
+    event.attempts += 1
+    event.last_error = str(error)[:500]
+    delay = next_retry_delay(event.attempts)
+    if delay is None:
+        event.status = "failed"
+    else:
+        event.send_at = now + delay
+        event.status = "pending"
