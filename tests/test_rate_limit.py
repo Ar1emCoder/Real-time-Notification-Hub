@@ -1,5 +1,4 @@
 import pytest
-
 from rate_limiter.rate_limiter import RateLimiter
 
 
@@ -37,3 +36,11 @@ class TestRateLimiter:
             assert (
                 limiter.allow("user1", now=301.0) is False
             )  # больше чем положено - не проходят
+
+    def test_exact_boundary_condition(self):
+        """Метка ровно на границе окна (now - timestamp == window_seconds) считается устаревшей."""
+        limiter = RateLimiter(limit=1, window_seconds=300)
+
+        assert limiter.allow("user1", now=0.0) is True  # первая метка
+        # Ровно через 300 секунд старая метка должна быть удалена, запрос проходит
+        assert limiter.allow("user1", now=300.0) is True
